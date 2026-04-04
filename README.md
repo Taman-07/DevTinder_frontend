@@ -9,6 +9,14 @@
 - 7. Create an Outlet in Body.jsx Component (to render children components).
 - 8. Create a Footer.
 - 9. Start making Login Page.
+- 10. Install Axios.
+- 11. For CORS error - install cors in backend => add middlware with configurations : origin, credentials: true
+- 12. Whenever you're making API call so pass axios => {withCredentials: true} in frontend by using this you will be able to see token back in application.
+- 13. Install react-redux + @reduxjs/toolkit -> https://redux-toolkit.js.org/tutorials/quick-start
+- 14. configureStore => Provider => createSlice => add resucer to the store.
+
+
+
 
 
 -> download ES7+ React/Redux Snippets extension. 
