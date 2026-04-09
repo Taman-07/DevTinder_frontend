@@ -23,7 +23,7 @@ const Navbar = () => {
         return navigate("/login");
     }
     catch(err){
-
+      console.log(err.message);
     }
   };
 
