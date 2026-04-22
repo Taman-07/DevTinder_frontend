@@ -53,3 +53,13 @@ Body
     <Route path="/login" element={<Login />} />
 </Route>
 -> to render any childer routes in Body.jsx we have to import Outlet.
+
+
+
+
+# FOR CHAT
+
+- change the css for the Chat.jsx and then in the App.js link it using the "/chat/:targetUserId"
+
+# in backend
+- install socket.io
