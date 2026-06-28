@@ -1,99 +1,155 @@
-# DEV TINDER 
+# Pair-Up Frontend
 
-# start the frontend using 
+Frontend for **Pair-Up** — a developer networking app to discover people, send connection requests, accept matches, and chat in real time.
 
-- cd devtinder-web
-- npm run dev
+**Backend:** [Pair-Up Backend](https://github.com/Taman-07/DevTinder)
 
+---
 
-- 1. Created a Vite + React application and start it.
-- 2. Remove unnecessary code and create a Hello app.
-- 3. Install Tailwind CSS.
-- 4. Install Daisy UI and navbar component to your App.jsx
-- 5. Install React Router Dom.
-- 6. Create BrowserRoute > Routes > Route=/ Body > RouteChildren.
-- 7. Create an Outlet in Body.jsx Component (to render children components).
-- 8. Create a Footer.
-- 9. Start making Login Page.
-- 10. Install Axios.
-- 11. For CORS error - install cors in backend => add middlware with configurations : origin, credentials: true
-- 12. Whenever you're making API call so pass axios => {withCredentials: true} in frontend by using this you will be able to see token back in application.
-- 13. Install react-redux + @reduxjs/toolkit -> https://redux-toolkit.js.org/tutorials/quick-start
-- 14. configureStore => Provider => createSlice => add resucer to the store.
-- 15. Add redux devtools in your browser.
-- 16. Login and see if your data is coming properly in the redux store.
-- 17. Navbar should update as soon as user logs. 
-- 18. Refactor our code to add constants file + create a components folder.
-- 19. 
+## Preview
 
+| Login                                         | Discover Feed                               |
+| --------------------------------------------- | ------------------------------------------- |
+| ![Login screen](./docs/Screenshots/login.png) | ![Feed screen](./docs/Screenshots/feed.png) |
 
+| Connections                                               | Real-time Chat                              |
+| --------------------------------------------------------- | ------------------------------------------- |
+| ![Connections screen](./docs/Screenshots/connections.png) | ![Chat screen](./docs/Screenshots/chat.png) |
 
+---
 
--> download ES7+ React/Redux Snippets extension. 
-# Navbar creation 
-- Make and Open Navbar.jsx and write racfce command.
-# RAFCE ->  React Arrow Function Component with an Export statement 
-- just type it and a function is made automatically.
+## Features
 
+* Sign up and login with cookie-based authentication
+* Swipe-style feed to discover new developer profiles
+* Send **Interested** or **Ignore** on user cards
+* Auto-load the next feed batch without refreshing
+* View and respond to incoming connection requests
+* Browse accepted connections
+* Real-time 1:1 chat with Socket.IO
+* Edit your profile (name, age, gender, about, photo)
 
+---
 
-# Structure 
-Body 
-    Navbar 
-        Route=/            => Feed Api
-        Route=/login       => Login Api
-        Route=/connections => Connections Api
-        Route=/profile     => Profile Api
+## Tech Stack
 
+| Layer     | Tools                   |
+| --------- | ----------------------- |
+| UI        | React 19, Vite          |
+| State     | Redux Toolkit           |
+| Routing   | React Router            |
+| HTTP      | Axios                   |
+| Real-time | Socket.IO Client        |
+| Styling   | Tailwind CSS 4, DaisyUI |
 
+---
 
-# Outlet 
--> We create children routes like that 
-<Route path="/" element={<Body />} >
-    <Route path="/login" element={<Login />} />
-</Route>
--> to render any childer routes in Body.jsx we have to import Outlet.
+## Project Structure
 
+```text
+src/
+├── App.jsx
+├── components/
+│   ├── Feed.jsx
+│   ├── UserCard.jsx
+│   ├── Login.jsx
+│   ├── Profile.jsx
+│   ├── Requests.jsx
+│   ├── Connections.jsx
+│   ├── Chat.jsx
+│   └── Navbar.jsx
+└── utils/
+    ├── appStore.js
+    ├── constants.js
+    ├── socket.js
+    ├── userSlice.js
+    ├── feedSlice.js
+    └── requestSlice.js
+```
 
+---
 
+## Getting Started
 
-# FOR CHAT
+### Prerequisites
 
-- change the css for the Chat.jsx and then in the App.js link it using the "/chat/:targetUserId"
+* Node.js 18+
+* **Pair-Up Backend** running on port **3000**
 
-# in backend
-- install socket.io
+### Installation
 
+```bash
+git clone https://github.com/Taman-07/DevTinder_frontend
 
+cd DevTinder_frontend
 
-# Deployment
-- Signup on AWS
-- Launch instance
-- chmod 400 <secret>.pem
-- ssh -i "devTinder-secret.pem" ubuntu@ec2-43-204-96-49.ap-south-1.compute.amazonaws.com
-- Install Node version 16.17.0
-- Git clone
+npm install
+```
 
-# Frontend
-- npm install > dependencies install
-- npm run build
-- sudo apt update
-- sudo apt install nginx
-- sudo systemctl start nginx
-- sudo systemctl enable nginx
-- Copy code from dist(build files) to /var/www/html/
-- sudo scp -r dist/* /var/www/html/
-- Enable port :80 of your instance
+---
 
+## Run
 
-# Backend
-- updated DB password
-- allowed ec2 instance public IP on mongodb server
-- npm intsall pm2 -g
-- pm2 start npm -- name "devTinder-backend" -- start
-- pm2 logs
-- pm2 list, pm2 flush <name> , pm2 stop <name>, pm2 delete <name>
-- config nginx - /etc/nginx/sites-available/default
-- restart nginx - sudo systemctl restart nginx
-- Modify the BASEURL in frontend project to "/api"
-- updated BASE_URL
+```bash
+npm run dev
+```
+
+Open:
+
+```text
+http://localhost:5173
+```
+
+---
+
+## Build
+
+```bash
+npm run build
+
+npm run preview
+```
+
+---
+
+## Routes
+
+| Path                  | Page                         |
+| --------------------- | ---------------------------- |
+| `/`                   | Discover Feed                |
+| `/login`              | Login / Sign Up              |
+| `/profile`            | Your Profile                 |
+| `/requests`           | Incoming Connection Requests |
+| `/connections`        | Accepted Connections         |
+| `/chat/:targetUserId` | Chat with a Connection       |
+
+---
+
+## How It Works
+
+1. **Feed** — Browse developer profiles one at a time. Click **Interested** or **Ignore** to move to the next profile. When the current batch is exhausted, the next batch loads automatically.
+
+2. **Requests** — Accept or reject incoming **Interested** requests.
+
+3. **Connections** — Accepted matches appear on the **Connections** page.
+
+4. **Chat** — Open a connection to start a real-time conversation using Socket.IO.
+
+---
+
+## Scripts
+
+| Command           | Description                   |
+| ----------------- | ----------------------------- |
+| `npm run dev`     | Start Vite development server |
+| `npm run build`   | Create a production build     |
+| `npm run preview` | Preview the production build  |
+| `npm run lint`    | Run ESLint                    |
+
+---
+
+## Author
+
+**Tamanjot Kaur**
+
+---
