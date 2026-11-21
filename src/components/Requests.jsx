@@ -1,23 +1,39 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 import { BASE_URL } from "../utils/constants";
 import { useDispatch, useSelector } from "react-redux";
 import { addRequests, removeRequest } from "../utils/requestSlice";
 
+const DEFAULT_PHOTO = "https://cdn-icons-png.flaticon.com/512/219/219969.png";
+
 const Requests = () => {
   const requests = useSelector((store) => store.requests);
+  const user = useSelector((store) => store.user);
   const dispatch = useDispatch();
 
-  const reviewRequests = async (status, _id) => {
+  const [busyId, setBusyId] = useState(null);
+  const [error, setError] = useState("");
+
+  const isAlumni = user?.role === "alumni";
+
+  const reviewRequests = async (status, requestId) => {
     try {
+      setBusyId(requestId);
+      setError("");
       await axios.post(
-        BASE_URL + "/request/review/" + status + "/" + _id,
+        BASE_URL + "/request/review/" + status + "/" + requestId,
         {},
         { withCredentials: true }
       );
-      dispatch(removeRequest(_id));
+      dispatch(removeRequest(requestId));
     } catch (err) {
-      console.log(err.message);
+      const msg =
+        err?.response?.data?.message ||
+        (typeof err?.response?.data === "string" ? err.response.data : "");
+      setError(msg || "Could not update the request. Please try again.");
+    } finally {
+      setBusyId(null);
     }
   };
 
@@ -26,10 +42,9 @@ const Requests = () => {
       const res = await axios.get(BASE_URL + "/user/requests/received", {
         withCredentials: true,
       });
-
       dispatch(addRequests(res.data.data));
     } catch (err) {
-      console.log(err.message);
+      setError("Could not load requests. Please refresh the page.");
     }
   };
 
@@ -37,72 +52,134 @@ const Requests = () => {
     fetchRequests();
   }, []);
 
-  if (!requests)
-    return <h1 className="flex justify-center my-10">Loading...</h1>;
+  // ---------- LOADING ----------
+  if (!requests) {
+    return (
+      <div className="min-h-[50dvh] flex items-center justify-center">
+        <span className="loading loading-spinner loading-md text-primary" />
+      </div>
+    );
+  }
 
-  if (requests.length === 0)
-    return <h1 className="flex justify-center my-10">No Requests Yet</h1>;
+  // ---------- EMPTY ----------
+  if (requests.length === 0) {
+    return (
+      <div className="min-h-[60dvh] flex items-center justify-center px-4 py-10">
+        <div className="w-full max-w-sm text-center rounded-2xl bg-base-200 border border-white/10 p-8">
+          <h2 className="text-xl font-bold">No requests yet</h2>
+          <p className="text-sm text-base-content/70 mt-2 leading-relaxed">
+            {isAlumni
+              ? "When a student asks you for help, the request will appear here."
+              : "Requests you send to alumni show up in Connections once they accept."}
+          </p>
+          {!isAlumni && (
+            <Link to="/" className="btn btn-primary rounded-xl mt-6 px-8">
+              Find mentors
+            </Link>
+          )}
+        </div>
+      </div>
+    );
+  }
 
+  // ---------- LIST ----------
   return (
-    <div className="text-center mb-10">
-      <h1
-        className="text-4xl font-extrabold mb-12 bg-gradient-to-r 
-      from-pink-400 via-purple-400 to-indigo-400 
-      bg-clip-text text-transparent inline-block"
-      >
-        Requests
-      </h1>
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
+      <div className="text-center mb-8">
+        <h1 className="text-3xl sm:text-4xl font-extrabold">Requests</h1>
+        <p className="text-sm text-base-content/70 mt-2">
+          {requests.length} {requests.length === 1 ? "student needs" : "students need"} your help
+        </p>
+      </div>
 
-      <div className="flex flex-col items-center gap-6">
+      {error && (
+        <p role="alert" className="mb-5 text-center text-sm text-error">
+          {error}
+        </p>
+      )}
+
+      <div className="flex flex-col gap-4">
         {requests.map((request) => {
-          const { _id, firstName, lastName, photoUrl, about, age, gender } =
-            request.fromUserId;
+          const person = request.fromUserId;
+          if (!person) return null;
+
+          const {
+            firstName,
+            lastName,
+            photoUrl,
+            about,
+            branch,
+            batchYear,
+            skills = [],
+          } = person;
+
+          const meta = [branch, batchYear ? `Batch ${batchYear}` : null]
+            .filter(Boolean)
+            .join(" · ");
+          const busy = busyId === request._id;
 
           return (
-            <div
-              key={_id}
-              className="flex justify-between items-center bg-gray-900 
-              border border-white rounded-xl p-5 w-[650px] shadow-md 
-              hover:shadow-2xl hover:scale-105 transition-all duration-300"
+            <article
+              key={request._id}
+              className="rounded-2xl bg-base-200 border border-white/10 p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center gap-5 transition-colors hover:border-primary/40"
             >
-              {/* LEFT SIDE (Image + Text) */}
-              <div className="flex items-center">
+              {/* PERSON */}
+              <div className="flex items-center gap-4 min-w-0 flex-1">
                 <img
-                  src={photoUrl}
-                  alt="photo"
-                  className="w-20 h-20 rounded-full object-cover"
+                  src={photoUrl || DEFAULT_PHOTO}
+                  alt={`${firstName} ${lastName || ""}`.trim()}
+                  onError={(e) => {
+                    e.currentTarget.src = DEFAULT_PHOTO;
+                  }}
+                  className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-full object-cover bg-base-300 ring-2 ring-primary"
                 />
-
-                <div className="ml-6 text-left">
-                  <h2 className="text-xl font-semibold text-white">
+                <div className="min-w-0 text-left">
+                  <h2 className="text-lg sm:text-xl font-bold truncate">
                     {firstName} {lastName}
                   </h2>
-
-                  <p className="text-gray-300 mt-2 max-w-[350px]">{about}</p>
-
-                  <p className="text-gray-400 text-sm mt-1">
-                    {age} • {gender}
-                  </p>
+                  {meta && (
+                    <p className="text-sm text-base-content/70 truncate">{meta}</p>
+                  )}
+                  {about && (
+                    <p className="text-sm text-base-content/80 mt-1 line-clamp-2">
+                      {about}
+                    </p>
+                  )}
+                  {skills.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {skills.slice(0, 4).map((s) => (
+                        <span
+                          key={s}
+                          className="px-2.5 py-0.5 rounded-full bg-primary/15 text-accent text-xs"
+                        >
+                          {s}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
               {/* BUTTONS */}
-              <div className="flex gap-3">
+              <div className="grid grid-cols-2 sm:flex gap-3 sm:shrink-0">
                 <button
-                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+                  type="button"
+                  disabled={busy}
                   onClick={() => reviewRequests("rejected", request._id)}
+                  className="btn btn-outline h-11 rounded-xl border-white/20 text-base-content hover:bg-white/5 hover:border-white/40"
                 >
-                  Reject
+                  Decline
                 </button>
-
                 <button
-                  className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
+                  type="button"
+                  disabled={busy}
                   onClick={() => reviewRequests("accepted", request._id)}
+                  className="btn btn-primary h-11 rounded-xl px-6"
                 >
-                  Accept
+                  {busy ? "Please wait..." : "Accept"}
                 </button>
               </div>
-            </div>
+            </article>
           );
         })}
       </div>

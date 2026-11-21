@@ -1,19 +1,22 @@
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import NavBar from "./NavBar";
 import Footer from "./Footer";
 import { BASE_URL } from "../utils/constants";
 import { useDispatch, useSelector } from "react-redux";
 import { addUser } from "../utils/userSlice";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const Body = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const userData = useSelector((store) => store.user);
+  const [checking, setChecking] = useState(!userData);
 
   const fetchUser = async () => {
     if (userData) {
+      setChecking(false);
       return;
     }
     try {
@@ -22,10 +25,12 @@ const Body = () => {
       });
       dispatch(addUser(res.data));
     } catch (err) {
-      if (err.response?.status === 401) {
+      // only redirect if we are not already on the login page
+      if (err.response?.status === 401 && location.pathname !== "/login") {
         navigate("/login");
       }
-      console.error(err);
+    } finally {
+      setChecking(false);
     }
   };
 
@@ -34,10 +39,16 @@ const Body = () => {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-[100dvh] flex flex-col bg-base-100">
       <NavBar />
       <main className="flex-1">
-        <Outlet />
+        {checking ? (
+          <div className="min-h-[50dvh] flex items-center justify-center">
+            <span className="loading loading-spinner loading-md text-primary" />
+          </div>
+        ) : (
+          <Outlet />
+        )}
       </main>
       <Footer />
     </div>

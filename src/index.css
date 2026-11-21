@@ -1,3 +1,94 @@
 @import "tailwindcss";
-@plugin "daisyui"; 
+@plugin "daisyui" {
+  themes: pairup --default;
+}
 
+@plugin "daisyui/theme" {
+  name: "pairup";
+  default: true;
+  prefersdark: true;
+  color-scheme: dark;
+
+  --color-base-100: #0b0a0c;
+  --color-base-200: #151215;
+  --color-base-300: #231a1f;
+  --color-base-content: #ffffff;   /* pure white text */
+
+  --color-primary: #e11d48;
+  --color-primary-content: #ffffff;
+  --color-secondary: #fb7185;
+  --color-secondary-content: #1a0a0e;
+  --color-accent: #ff8fa0;
+  --color-accent-content: #1a0a0e;
+  --color-neutral: #1d1418;
+  --color-neutral-content: #ffffff;
+
+  --color-info: #38bdf8;
+  --color-success: #4ade80;
+  --color-warning: #fbbf24;
+  --color-error: #f87171;
+
+  --radius-box: 1rem;
+  --radius-field: 0.75rem;
+  --radius-selector: 0.75rem;
+}
+
+body {
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  font-weight: 500;
+  background: #0b0a0c;
+  color: #ffffff;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, .brand {
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+}
+h2, h3{
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+}
+/* buttons, inputs and chips get a bolder weight too */
+
+button, .btn { font-family: inherit; font-weight: 600; }
+input, textarea, select { font-family: Arial, Helvetica, sans-serif; font-weight: 400; }
+
+
+/* brighter secondary text: the grey "dim" text becomes near-white */
+[class*="text-base-content/"] { color: rgba(255, 255, 255, 0.82); }
+
+/* soft red glow in the corner */
+body::after {
+  content: "";
+  position: fixed;
+  top: -160px;
+  right: -160px;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  background: #e11d48;
+  opacity: 0.16;
+  filter: blur(110px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ---------- logo ---------- */
+
+.logo-text {
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.logo-gradient {
+  background: linear-gradient(90deg, #ff4d6d 0%, #e11d48 50%, #ff9f6b 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
