@@ -4,7 +4,6 @@ import { BASE_URL } from "../utils/constants";
 import { addFeed } from "../utils/feedSlice";
 import { useDispatch, useSelector } from "react-redux";
 import UserCard from "./UserCard";
-import { Navigate } from "react-router-dom";
 
 // how many cards to show at once: 3 = one row, 6 = two rows (on desktop)
 const VISIBLE_CARDS = 6;
@@ -30,10 +29,6 @@ const Feed = () => {
 
   const getFeed = async () => {
     if (feed?.length > 0) return;
-      // ---------- ALUMNI VIEW (alumni don't browse, they answer requests) ----------
-    if (isAlumni) {
-      return <Navigate to="/requests" replace />;
-    }
     try {
       setRefreshing(true);
       const res = await axios.get(BASE_URL + "/feed", {
@@ -105,6 +100,7 @@ const Feed = () => {
           onKeyDown={(e) => e.key === "Escape" && setQ("")}
           placeholder="Search by name, company or role"
           aria-label="Search alumni by name, company or role"
+          style={{ fontWeight: 400 }}
           className="input input-bordered w-full h-12 pl-12 pr-12 bg-base-200 text-base rounded-xl"
         />
 
@@ -244,24 +240,9 @@ const Feed = () => {
     );
   };
 
-  // ---------- ALUMNI VIEW (alumni don't swipe) ----------
-  if (isAlumni) {
-    return (
-      <div className="min-h-[calc(100dvh-8rem)] flex items-center justify-center px-4 py-8">
-        <div className="w-full max-w-sm text-center rounded-2xl bg-base-200 border border-base-content/10 p-8">
-          <h2 className="text-xl font-bold">You're set up as an alumnus</h2>
-          <p className="text-sm text-base-content/60 mt-2 leading-relaxed">
-            Students will send you help requests. Open your requests from the
-            menu to accept or decline them.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  // ---------- PAGE ----------
+  // ---------- PAGE (same page for students and alumni) ----------
   return (
-    <div className="max-w-6xl mx-auto min-h-[calc(100dvh-8rem)] flex flex-col items-center px-4 sm:px-6 py-10 gap-8">
+    <div className="w-full max-w-6xl mx-auto min-h-[calc(100dvh-8rem)] flex flex-col items-center px-4 sm:px-6 py-10 gap-8">
       <style>{`
         @keyframes cardIn {
           from { opacity: 0; transform: translateY(12px); }
@@ -272,10 +253,20 @@ const Feed = () => {
 
       <div className="text-center">
         <h1 className="text-3xl sm:text-5xl font-bold tracking-tight">
-          Find your <span className="text-primary">mentor</span>
+          {isAlumni ? (
+            <>
+              Meet fellow <span className="text-primary">alumni</span>
+            </>
+          ) : (
+            <>
+              Find your <span className="text-primary">mentor</span>
+            </>
+          )}
         </h1>
         <p className="text-sm text-base-content/60 mt-3 max-w-md mx-auto">
-          Request help from alumni who are already placed in top companies.
+          {isAlumni
+            ? "Connect with other Chitkara alumni, grow your network and see where everyone is placed."
+            : "Request help from alumni who are already placed in top companies."}
         </p>
         {Array.isArray(feed) && feed.length > 0 && results === null && !searching && (
           <p className="text-xs uppercase tracking-[0.2em] text-base-content/50 mt-4">

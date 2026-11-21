@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { BASE_URL } from "../utils/constants";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { removeUserFromFeed } from "../utils/feedSlice";
 
 const DEFAULT_PHOTO = "https://cdn-icons-png.flaticon.com/512/219/219969.png";
@@ -31,9 +31,29 @@ const UserCard = ({ user }) => {
   } = user;
 
   const dispatch = useDispatch();
+  const viewer = useSelector((store) => store.user);
+  const viewerIsAlumni = viewer?.role === "alumni";
+
   const [status, setStatus] = useState(null); // null | "interested" | "ignored"
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // wording depends on who is looking at the card
+  const text = viewerIsAlumni
+    ? {
+        skip: "Not now",
+        accept: "Connect",
+        sending: "Sending...",
+        sent: "Connection request sent. You'll see them in Connections once they accept.",
+        skipped: "Not now. This profile won't appear again.",
+      }
+    : {
+        skip: "Skip",
+        accept: "Request help",
+        sending: "Sending...",
+        sent: "Request sent. You'll see them in Connections once they accept.",
+        skipped: "Skipped.",
+      };
 
   const handleSendRequest = async (newStatus) => {
     try {
@@ -139,12 +159,12 @@ const UserCard = ({ user }) => {
       <div className="mt-auto pt-6">
         {status === "interested" && (
           <p className="text-center text-sm font-medium text-success py-3" role="status">
-            Request sent. You'll see them in Connections once they accept.
+            {text.sent}
           </p>
         )}
         {status === "ignored" && (
           <p className="text-center text-sm text-base-content/60 py-3" role="status">
-            Skipped.
+            {text.skipped}
           </p>
         )}
 
@@ -156,7 +176,7 @@ const UserCard = ({ user }) => {
               onClick={() => handleSendRequest("ignored")}
               className="btn btn-outline h-12 rounded-xl border-white/20 text-base-content hover:bg-white/5 hover:border-white/40"
             >
-              Skip
+              {text.skip}
             </button>
             <button
               type="button"
@@ -164,13 +184,13 @@ const UserCard = ({ user }) => {
               onClick={() => handleSendRequest("interested")}
               className="btn btn-primary h-12 rounded-xl"
             >
-              {loading ? "Sending..." : "Request help"}
+              {loading ? text.sending : text.accept}
             </button>
           </div>
         )}
 
         {error && (
-          <p role="alert" className="mt-3 text-center text-sm text-red-300">
+          <p role="alert" className="mt-3 text-center text-sm text-error">
             {error}
           </p>
         )}

@@ -4,6 +4,7 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { BASE_URL } from "../utils/constants";
 import { removeUser } from "../utils/userSlice";
+import { addFeed } from "../utils/feedSlice";
 import Brand from "./Brand";
 
 const Navbar = () => {
@@ -17,6 +18,7 @@ const Navbar = () => {
     try {
       await axios.post(BASE_URL + "/logout", {}, { withCredentials: true });
       dispatch(removeUser());
+      dispatch(addFeed(null)); // clear the old feed so the next user gets their own
       navigate("/login");
     } catch (err) {
       console.log(err.message);
@@ -28,9 +30,9 @@ const Navbar = () => {
     if (document.activeElement) document.activeElement.blur();
   };
 
-  // links shown in the bar (desktop) and in the dropdown (mobile)
+  // links shown in the bar (desktop); phones use the bottom tab bar
   const links = [
-    ...(isAlumni ? [] : [{ to: "/", label: "Mentors", end: true }]),
+    { to: "/", label: isAlumni ? "Alumni" : "Mentors", end: true },
     { to: "/connections", label: "Connections" },
     { to: "/requests", label: "Requests" },
   ];
@@ -68,7 +70,7 @@ const Navbar = () => {
               <div className="hidden sm:block text-right leading-tight">
                 <p className="text-sm font-semibold">Hello, {user.firstName}</p>
                 <p className="text-xs text-base-content/60">
-                  {isAlumni ? "Alumnus" : "Student"}
+                  {isAlumni ? "Alumni" : "Student"}
                 </p>
               </div>
 
